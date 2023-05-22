@@ -21,8 +21,6 @@
   });
 </script>
 
-<slot />
-
 <div class="app">
 	<Header />
 
