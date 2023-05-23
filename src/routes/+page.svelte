@@ -1,36 +1,15 @@
 <script lang="ts">
   import { redirect } from '@sveltejs/kit';
-  import { getSession } from '@supabase/supabase-js';
+  import { writable } from 'svelte/store';
 
-  let user, tableData, ingredData, kitchenData, dietData, bookData;
+  export let data;
 
-  export async function load({ context }) {
-    const session = await getSession(context.headers.cookie);
+  let tableData, ingredData, kitchenData, dietData, bookData;
 
-    // if (!session) {
-    //   throw redirect(303, '/');
-    // }
-
-    const { data: tableData, error: tableError } = await supabase.from('units').select('*');
-    const { data: ingredData, error: ingredError } = await supabase.from('ingredients').select('*');
-    const { data: kitchenData, error: kitchenError } = await supabase.from('kitchen').select('*');
-    const { data: dietData, error: dietError } = await supabase.from('diet').select('*');
-    const { data: bookData, error: bookError } = await supabase.from('book').select('*');
-
-    if (tableError || ingredError || kitchenError || dietError || bookError) {
-      throw new Error('Failed to fetch data from the database.');
+  $: {
+    if (data) {
+      ({ tableData, ingredData, kitchenData, dietData, bookData } = data);
     }
-
-    return {
-      props: {
-        user: session?.user,
-        tableData,
-        ingredData,
-        kitchenData,
-        dietData,
-        bookData
-      }
-    };
   }
 
   let selectedUnits = [];
@@ -96,7 +75,7 @@
     }
 
     // Aktualisiere die bookData-Liste mit dem neuen Buch
-    bookData.push(data[0]);
+    bookData = [...bookData, data[0]];
 
     // Setze das newBook-Feld zurück
     newBook = '';
@@ -126,8 +105,6 @@
   <meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<div>Protected content for {user?.email}</div>
-
 <div>
   <label for="dishName">Dish Name:</label>
   <input type="text" id="dishName" bind:value={dishName} on:input={handleDishNameChange} />
@@ -137,7 +114,7 @@
   <label for="kitchen">Kitchen:</label>
   <select id="kitchen" on:change={handleKitchenChange}>
     <option value="">--Select--</option>
-    {#each kitchenData as kitchen (kitchen.id)}
+    {#each kitchenData as kitchen}
       <option value={kitchen.id}>{kitchen.name}</option>
     {/each}
   </select>
@@ -147,7 +124,7 @@
   <label for="diet">Diet:</label>
   <select id="diet" on:change={handleDietChange}>
     <option value="">--Select--</option>
-    {#each dietData as diet (diet.id)}
+    {#each dietData as diet}
       <option value={diet.id}>{diet.name}</option>
     {/each}
   </select>
@@ -157,51 +134,44 @@
   <label for="book">Book:</label>
   <select id="book" on:change={handleBookChange}>
     <option value="">--Select--</option>
-    {#each bookData as book (book.id)}
+    {#each bookData as book}
       <option value={book.id}>{book.name}</option>
     {/each}
   </select>
-  <input type="text" placeholder="New Book" bind:value={newBook} />
-  <button on:click={addNewBook}>Add Book</button>
 </div>
 
 <div>
   <label for="page">Page:</label>
-  <input type="text" id="page" bind:value={page} on:input={handlePageChange} />
+  <input type="number" id="page" bind:value={page} on:input={handlePageChange} />
 </div>
 
-<div style="display: flex; flex-wrap: wrap; gap: 10px;">
-  {#each selectedUnits as _, index}
+<div>
+  <h3>Ingredients</h3>
+  {#each selectedIngredients as ingredient, index}
     <div>
-      <input type="number" placeholder="Quantity" on:input={event => handleChangeQuantity(event, index)} />
       <select on:change={event => handleChangeUnit(event, index)}>
         <option value="">--Select--</option>
-        {#each tableData as item (item.id)}
-          <option value={item.id}>{item.name}</option>
+        {#each tableData as unit}
+          <option value={unit.id}>{unit.name}</option>
         {/each}
       </select>
       <select on:change={event => handleChangeIngredient(event, index)}>
         <option value="">--Select--</option>
-        {#each ingredData as item (item.id)}
-          <option value={item.id}>{item.name}</option>
+        {#each ingredData as ingredient}
+          <option value={ingredient.id}>{ingredient.name}</option>
         {/each}
       </select>
+      <input type="text" on:input={event => handleChangeQuantity(event, index)} />
     </div>
   {/each}
+  <button on:click={addDropdown}>Add Ingredient</button>
 </div>
 
-<button on:click={addDropdown}>Add Dropdown</button>
+<div>
+  <input type="text" bind:value={newBook} />
+  <button on:click={addNewBook}>Add New Book</button>
+</div>
 
-<button on:click={saveRecipe}>Save Recipe</button>
-
-{#each selectedUnits as unit, index}
-  {#if unit}
-    <div>
-      <div>Quantity: {selectedQuantities[index]}</div>
-      <div>You selected Unit: {tableData.find(item => item.id === unit)?.name}</div>
-    </div>
-  {/if}
-  {#if selectedIngredients[index]}
-    <div>You selected Ingredient: {selectedIngredients[index]}</div>
-  {/if}
-{/each}
+<div>
+  <button on:click={saveRecipe}>Save Recipe</button>
+</div>

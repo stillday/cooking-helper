@@ -43,7 +43,7 @@ export const post = async (request, { parent }) => {
       console.error('Failed to save recipe:', error.message);
       return {
         status: 500,
-        body: { message: 'Failed to save recipe' }
+        body: JSON.stringify({ message: 'Failed to save recipe' })
       };
     }
 
@@ -51,13 +51,13 @@ export const post = async (request, { parent }) => {
 
     return {
       status: 200,
-      body: { message: 'Recipe saved successfully' }
+      body: JSON.stringify({ message: 'Recipe saved successfully' })
     };
   } catch (error) {
     console.error('Failed to save recipe:', error);
     return {
       status: 500,
-      body: { message: 'Failed to save recipe' }
+      body: JSON.stringify({ message: 'Failed to save recipe' })
     };
   }
 };
