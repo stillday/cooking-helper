@@ -81,23 +81,23 @@
     newBook = '';
   }
 
-  async function saveRecipe() {
-    const { data, error } = await supabase.from('recipe').insert([
-      {
-        name: dishName,
-        'kitchen-id': selectedKitchen,
-        'diet-id': selectedDiet,
-        'book-id': selectedBook,
-        page: page
-      }
-    ]);
+  // async function saveRecipe() {
+  //   const { data, error } = await supabase.from('recipe').insert([
+  //     {
+  //       name: dishName,
+  //       'kitchen-id': selectedKitchen,
+  //       'diet-id': selectedDiet,
+  //       'book-id': selectedBook,
+  //       page: page
+  //     }
+  //   ]);
 
-    if (error) {
-      console.error('Failed to save recipe:', error.message);
-    } else {
-      console.log('Recipe saved successfully:', data);
-    }
-  }
+  //   if (error) {
+  //     console.error('Failed to save recipe:', error.message);
+  //   } else {
+  //     console.log('Recipe saved successfully:', data);
+  //   }
+  // }
 </script>
 
 <svelte:head>
@@ -105,73 +105,75 @@
   <meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<div>
-  <label for="dishName">Dish Name:</label>
-  <input type="text" id="dishName" bind:value={dishName} on:input={handleDishNameChange} />
-</div>
-
-<div>
-  <label for="kitchen">Kitchen:</label>
-  <select id="kitchen" on:change={handleKitchenChange}>
-    <option value="">--Select--</option>
-    {#each kitchenData as kitchen}
-      <option value={kitchen.id}>{kitchen.name}</option>
+<form method="POST">
+  <div>
+    <label for="dishName">Dish Name:</label>
+    <input name="dishName" type="text" id="dishName" bind:value={dishName} on:input={handleDishNameChange} />
+  </div>
+  
+  <div>
+    <label for="kitchen">Kitchen:</label>
+    <select name="kitchen" id="kitchen" on:change={handleKitchenChange}>
+      <option value="">--Select--</option>
+      {#each kitchenData as kitchen}
+        <option value={kitchen.id}>{kitchen.name}</option>
+      {/each}
+    </select>
+  </div>
+  
+  <div>
+    <label for="diet">Diet:</label>
+    <select name="diet" id="diet" on:change={handleDietChange}>
+      <option value="">--Select--</option>
+      {#each dietData as diet}
+        <option value={diet.id}>{diet.name}</option>
+      {/each}
+    </select>
+  </div>
+  
+  <div>
+    <label for="book">Book:</label>
+    <select name="book" id="book" on:change={handleBookChange}>
+      <option value="">--Select--</option>
+      {#each bookData as book}
+        <option value={book.id}>{book.name}</option>
+      {/each}
+    </select>
+  </div>
+  
+  <div>
+    <label for="page">Page:</label>
+    <input name="page" type="number" id="page" bind:value={page} on:input={handlePageChange} />
+  </div>
+  
+  <div>
+    <h3>Ingredients</h3>
+    {#each selectedIngredients as ingredient, index}
+      <div>
+        <select name="ingredient.unit" on:change={event => handleChangeUnit(event, index)}>
+          <option value="">--Select--</option>
+          {#each tableData as unit}
+            <option value={unit.id}>{unit.name}</option>
+          {/each}
+        </select>
+        <select name="ingredient.name" on:change={event => handleChangeIngredient(event, index)}>
+          <option value="">--Select--</option>
+          {#each ingredData as ingredient}
+            <option value={ingredient.id}>{ingredient.name}</option>
+          {/each}
+        </select>
+        <input name="ingredient.quantity" type="text" on:input={event => handleChangeQuantity(event, index)} />
+      </div>
     {/each}
-  </select>
-</div>
-
-<div>
-  <label for="diet">Diet:</label>
-  <select id="diet" on:change={handleDietChange}>
-    <option value="">--Select--</option>
-    {#each dietData as diet}
-      <option value={diet.id}>{diet.name}</option>
-    {/each}
-  </select>
-</div>
-
-<div>
-  <label for="book">Book:</label>
-  <select id="book" on:change={handleBookChange}>
-    <option value="">--Select--</option>
-    {#each bookData as book}
-      <option value={book.id}>{book.name}</option>
-    {/each}
-  </select>
-</div>
-
-<div>
-  <label for="page">Page:</label>
-  <input type="number" id="page" bind:value={page} on:input={handlePageChange} />
-</div>
-
-<div>
-  <h3>Ingredients</h3>
-  {#each selectedIngredients as ingredient, index}
-    <div>
-      <select on:change={event => handleChangeUnit(event, index)}>
-        <option value="">--Select--</option>
-        {#each tableData as unit}
-          <option value={unit.id}>{unit.name}</option>
-        {/each}
-      </select>
-      <select on:change={event => handleChangeIngredient(event, index)}>
-        <option value="">--Select--</option>
-        {#each ingredData as ingredient}
-          <option value={ingredient.id}>{ingredient.name}</option>
-        {/each}
-      </select>
-      <input type="text" on:input={event => handleChangeQuantity(event, index)} />
-    </div>
-  {/each}
-  <button on:click={addDropdown}>Add Ingredient</button>
-</div>
-
-<div>
-  <input type="text" bind:value={newBook} />
-  <button on:click={addNewBook}>Add New Book</button>
-</div>
-
-<div>
-  <button on:click={saveRecipe}>Save Recipe</button>
-</div>
+    <button on:click={addDropdown} type="button">Add Ingredient</button>
+  </div>
+  
+  <div>
+    <input type="text" bind:value={newBook} />
+    <button on:click={addNewBook}>Add New Book</button>
+  </div>
+  
+  <div>
+    <button>Save Recipe</button>
+  </div>
+</form>
