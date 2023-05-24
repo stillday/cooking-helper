@@ -26,7 +26,6 @@ export async function addRecepy(recipyData, supabase){
 }  
 
 export async function addIngredients(ingedientsData, supabase) {
-  console.log('i am save me', ingedientsData);
   try {
     const { data, error } = await supabase.from('recipe-ingredients').insert(ingedientsData);
   

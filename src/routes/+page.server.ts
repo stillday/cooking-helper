@@ -26,7 +26,7 @@ export const load = async ({ locals }) => {
 };
 
 export const actions = {
-  default: async ( {request, locals}) => {
+  addRecipe: async ( {request, locals}) => {
       // TODO log the user in
         const { supabase } = locals;
         const data = await request.formData();
@@ -66,6 +66,42 @@ export const actions = {
   
          await addIngredients(ingedientsData, supabase)
        }, 500)
+  },
+
+  addNewBook: async ({ request, locals }) => {
+    const { supabase } = locals;
+    const data = await request.formData();
+  
+    const newBook = data.get('newBook');
+  
+    // Überprüfe, ob das Buch bereits in der Datenbank vorhanden ist
+    const { data: existingBookData, error: selectError } = await supabase
+      .from('book')
+      .select('name')
+      .eq('name', newBook)
+      .single();
+  
+    if (selectError) {
+      console.error('Failed to check existing books:', selectError);
+      return;
+    }
+  
+    if (existingBookData) {
+      console.log('Book already exists');
+      return;
+    }
+  
+    // Füge das neue Buch der Datenbank hinzu
+    const { data: insertedBookData, error: insertError } = await supabase.from('book').insert([{ name: newBook }]);
+    if (insertError) {
+      console.error('Failed to add new book:', insertError);
+      return;
+    }
+  
+    // Setze das newBook-Feld zurück
+    newBook = '';
   }
+  
+  
 }
 

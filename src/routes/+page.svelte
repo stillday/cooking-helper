@@ -60,26 +60,26 @@
     page = event.target.value;
   }
 
-  async function addNewBook() {
-    // Überprüfe, ob das Buch bereits in der bookData-Liste vorhanden ist
-    if (bookData.some(book => book.name === newBook)) {
-      console.log('Book already exists');
-      return;
-    }
+  // async function addNewBook() {
+  //   // Überprüfe, ob das Buch bereits in der bookData-Liste vorhanden ist
+  //   if (bookData.some(book => book.name === newBook)) {
+  //     console.log('Book already exists');
+  //     return;
+  //   }
 
-    // Füge das neue Buch der bookData-Liste hinzu
-    const { data, error } = await supabase.from('book').insert([{ name: newBook }]);
-    if (error) {
-      console.error('Failed to add new book:', error);
-      return;
-    }
+  //   // Füge das neue Buch der bookData-Liste hinzu
+  //   const { data, error } = await supabase.from('book').insert([{ name: newBook }]);
+  //   if (error) {
+  //     console.error('Failed to add new book:', error);
+  //     return;
+  //   }
 
-    // Aktualisiere die bookData-Liste mit dem neuen Buch
-    bookData = [...bookData, data[0]];
+  //   // Aktualisiere die bookData-Liste mit dem neuen Buch
+  //   bookData = [...bookData, data[0]];
 
-    // Setze das newBook-Feld zurück
-    newBook = '';
-  }
+  //   // Setze das newBook-Feld zurück
+  //   newBook = '';
+  // }
 
   // async function saveRecipe() {
   //   const { data, error } = await supabase.from('recipe').insert([
@@ -105,7 +105,7 @@
   <meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<form method="POST">
+<form method="POST" action="?/addRecipe">
   <div>
     <label for="dishName">Dish Name:</label>
     <input name="dishName" type="text" id="dishName" bind:value={dishName} on:input={handleDishNameChange} />
@@ -150,6 +150,7 @@
     <h3>Ingredients</h3>
     {#each selectedIngredients as ingredient, index}
       <div>
+        <input name="ingredient.quantity" type="text" on:input={event => handleChangeQuantity(event, index)} />
         <select name="ingredient.unit" on:change={event => handleChangeUnit(event, index)}>
           <option value="">--Select--</option>
           {#each tableData as unit}
@@ -162,15 +163,14 @@
             <option value={ingredient.id}>{ingredient.name}</option>
           {/each}
         </select>
-        <input name="ingredient.quantity" type="text" on:input={event => handleChangeQuantity(event, index)} />
       </div>
     {/each}
     <button on:click={addDropdown} type="button">Add Ingredient</button>
   </div>
   
   <div>
-    <input type="text" bind:value={newBook} />
-    <button on:click={addNewBook}>Add New Book</button>
+    <input name="newBook" type="text" bind:value={newBook} />
+    <button formaction="?/addNewBook">Add New Book</button>
   </div>
   
   <div>
