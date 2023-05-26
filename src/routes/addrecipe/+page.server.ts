@@ -1,3 +1,4 @@
+// ../addrecipe/+page.svelte
 // since there's no dynamic data here, we can prerender
 // it so that it gets served as a static asset in production
 import { addIngredients, addRecepy } from '$lib/server/supabase.js';
@@ -32,6 +33,7 @@ export const actions = {
         const data = await request.formData();
 
         const dishName = data.get('dishName');
+        const dishNote = data.get('dishNote');
         const selectedKitchen = data.get('kitchen');
         const selectedDiet = data.get('diet');
         const selectedBook = data.get('book');
@@ -47,6 +49,7 @@ export const actions = {
         const recipyData = [
           {
             name: dishName,
+            note: dishNote,
             'kitchen-id': selectedKitchen,
             'diet-id': selectedDiet,
             'book-id': selectedBook,
