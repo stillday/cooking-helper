@@ -22,6 +22,9 @@
 			<li aria-current={$page.url.pathname === '/addrecipe' ? 'page' : undefined}>
 				<a href="/addrecipe">Add Recipe</a>
 			</li>
+			<li aria-current={$page.url.pathname === '/recipesList' ? 'page' : undefined}>
+				<a href="/recipesList">Recipe List</a>
+			</li>
 			<li aria-current={$page.url.pathname === '/about' ? 'page' : undefined}>
 				<a href="/about">About</a>
 			</li>
