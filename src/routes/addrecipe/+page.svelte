@@ -28,7 +28,9 @@
   }
 
   function handleChangeIngredient(event, index) {
-    selectedIngredients[index] = event.target.value;
+    console.log('event', event);
+    selectedIngredients[index] = event.target.nextElementSibling;
+    console.log('log this', selectedIngredients[index])
   }
 
   function handleChangeQuantity(event, index) {
@@ -134,14 +136,24 @@
             <option value={unit.id}>{unit.name}</option>
           {/each}
         </select>
-        <select name="ingredient.name" on:change={event => handleChangeIngredient(event, index)}>
+        <label for="ingredient-name">Wähle die Zutat</label>
+        <input list="ingredient-name-list" id="ingredient.name" name="ingredient.name" on:change={event => handleChangeIngredient(event, index)}>
+        <datalist id="ingredient-name-list">
+          {#each ingredData as ingredient}
+            <option label={ingredient.name} value={ingredient.id}>{ingredient.name}</option>
+          {/each}
+        </datalist>
+        {#if selectedIngredients[index]}
+          {selectedIngredients[index]}
+        {/if}
+        <!-- <select name="ingredient.name" on:change={event => handleChangeIngredient(event, index)}>
           <option value="">--Select--</option>
           {#each ingredData as ingredient}
-            <option value={ingredient.id}>{ingredient.name}</option>
+          <option value={ingredient.id}>{ingredient.name}</option>
           {/each}
-        </select>
+        </select> -->
       </div>
-    {/each}
+      {/each}
     <button on:click={addDropdown} type="button">Add Ingredient</button>
   </div>
   

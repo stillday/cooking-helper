@@ -1,4 +1,4 @@
-// ../addrecipe/+page.ts
+// ../addrecipe/+page.server.ts
 // since there's no dynamic data here, we can prerender
 // it so that it gets served as a static asset in production
 import { addIngredients, addRecepy } from '$lib/server/supabase.js';
@@ -42,10 +42,6 @@ export const actions = {
         const ingredientName = data.getAll('ingredient.name');
         const ingredientQuantity = data.getAll('ingredient.quantity'); 
       
-        console.log(ingredientsUnits);
-        console.log(ingredientName);
-        console.log(ingredientQuantity);
-
         const recipyData = [
           {
             name: dishName,
@@ -58,7 +54,6 @@ export const actions = {
         ]
 
        const recipyId = await addRecepy(recipyData, supabase);
-
        setTimeout(async () => {
          const ingedientsData = ingredientsUnits.map((unit, index) => ({
             'recipe-id': recipyId,
@@ -66,7 +61,6 @@ export const actions = {
             'ingredients-id': ingredientName[index],
             'units-id': unit
          }))
-  
          await addIngredients(ingedientsData, supabase)
        }, 500)
   },
