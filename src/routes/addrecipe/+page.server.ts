@@ -40,7 +40,8 @@ export const actions = {
         const page = data.get('page');
         const ingredientsUnits = data.getAll('ingredient.unit');
         const ingredientName = data.getAll('ingredient.name');
-        const ingredientQuantity = data.getAll('ingredient.quantity'); 
+        const ingredientQuantity = data.getAll('ingredient.quantity');
+        const imageFile = data.get('dishImage');
       
         const recipyData = [
           {
@@ -52,9 +53,36 @@ export const actions = {
             page: page,
           }
         ]
-
+        // wartet auf die id vom rezept
        const recipyId = await addRecepy(recipyData, supabase);
+
        setTimeout(async () => {
+          if (imageFile) {
+            const path = 'public/dish/' + imageFile.name;
+            console.log('path', path);
+            console.log('Image File', imageFile);
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from('recipe-book')
+              .upload(path, imageFile, {
+                cacheControl: '3600',
+                upsert: false
+              });
+            
+            console.log('data', data)
+            if (uploadError) {
+              console.log('upload Error', uploadError);
+              console.error('Error uploading image:', uploadError.message);
+            } else {
+              // Aktualisieren der Rezeptdaten mit dem Bildpfad
+              console.log('recipy', recipyId);
+              console.log('key', uploadData);
+              const publicPath = supabase.storage.from('recipe-book').getPublicUrl(uploadData.path);
+              console.log('public path', publicPath.data.publicUrl);
+              const imagePath = publicPath.data.publicUrl;
+              await supabase.from('recipe').update({ imageUrl: imagePath }).eq('id', recipyId);
+            }
+          }
+
          const ingedientsData = ingredientsUnits.map((unit, index) => ({
             'recipe-id': recipyId,
             amount: ingredientQuantity[index],

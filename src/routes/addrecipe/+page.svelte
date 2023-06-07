@@ -12,6 +12,7 @@
     }
   }
 
+  let isEditing = [];
   let selectedUnits = [];
   let selectedIngredients = [];
   let selectedQuantities = [];
@@ -28,9 +29,11 @@
   }
 
   function handleChangeIngredient(event, index) {
-    console.log('event', event);
-    selectedIngredients[index] = event.target.nextElementSibling;
-    console.log('log this', selectedIngredients[index])
+    const selectedIngredientId = event.target.value;
+    const selectedIngredient = ingredData.find(ingredient => ingredient.id === selectedIngredientId);
+    selectedIngredients[index] = selectedIngredient;
+    isEditing[index] = true;
+    console.log(selectedIngredient);
   }
 
   function handleChangeQuantity(event, index) {
@@ -67,6 +70,11 @@
     page = event.target.value;
   }
 
+  function editIngredient(index) {
+    isEditing[index] = false;
+    console.log('ja ich will dd');
+  }
+
 </script>
 
 <svelte:head>
@@ -74,7 +82,7 @@
   <meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<form method="POST" action="?/addRecipe">
+<form method="POST" action="?/addRecipe" enctype="multipart/form-data">
   <div>
     <label for="dishName">Dish Name:</label>
     <input name="dishName" type="text" id="dishName" bind:value={dishName} on:input={handleDishNameChange} />
@@ -124,6 +132,10 @@
     <label for="page">Page:</label>
     <input name="page" type="number" id="page" bind:value={page} on:input={handlePageChange} />
   </div>
+  <div>
+    <label for="dishImage">Select image:</label>
+    <input type="file" id="dishImage" name="dishImage" accept="image/png, image/jpeg">
+  </div>
   
   <div>
     <h3>Ingredients</h3>
@@ -138,20 +150,15 @@
         </select>
         <label for="ingredient-name">Wähle die Zutat</label>
         <input list="ingredient-name-list" id="ingredient.name" name="ingredient.name" on:change={event => handleChangeIngredient(event, index)}>
-        <datalist id="ingredient-name-list">
+        <datalist id="ingredient-name-list" hidden={!isEditing[index]}>
           {#each ingredData as ingredient}
             <option label={ingredient.name} value={ingredient.id}>{ingredient.name}</option>
           {/each}
         </datalist>
         {#if selectedIngredients[index]}
-          {selectedIngredients[index]}
+          {selectedIngredients[index].name}
+          <button on:click={() => editIngredient(index)} type="button">Edit</button>
         {/if}
-        <!-- <select name="ingredient.name" on:change={event => handleChangeIngredient(event, index)}>
-          <option value="">--Select--</option>
-          {#each ingredData as ingredient}
-          <option value={ingredient.id}>{ingredient.name}</option>
-          {/each}
-        </select> -->
       </div>
       {/each}
     <button on:click={addDropdown} type="button">Add Ingredient</button>
