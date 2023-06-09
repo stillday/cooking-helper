@@ -4,11 +4,12 @@
 
   export let data;
 
-  let tableData, ingredData, kitchenData, dietData, bookData;
+  let tableData, ingredData, kitchenData, dietData, bookData, rankData, popularityData;
+
 
   $: {
     if (data) {
-      ({ tableData, ingredData, kitchenData, dietData, bookData } = data);
+      ({ tableData, ingredData, kitchenData, dietData, bookData, rankData, popularityData } = data);
     }
   }
 
@@ -18,9 +19,12 @@
   let selectedQuantities = [];
   let dishName = '';
   let dishNote = '';
+  let dishDescription = '';
   let selectedKitchen = '';
   let selectedDiet = '';
   let selectedBook = '';
+  let selectRank = '';
+  let selectPopularity = '';
   let newBook = '';
   let page = '';
 
@@ -32,7 +36,7 @@
     const selectedIngredientId = event.target.value;
     const selectedIngredient = ingredData.find(ingredient => ingredient.id === selectedIngredientId);
     selectedIngredients[index] = selectedIngredient;
-    isEditing[index] = true;
+    !isEditing[index];
     console.log(selectedIngredient);
   }
 
@@ -48,6 +52,10 @@
 
   function handleDishNameChange(event) {
     dishName = event.target.value;
+  }
+
+  function handelDishDescriptionChange(event) {
+    dishDescription = event.target.value;
   }
 
   function handleDishNoteChange(event) {
@@ -71,8 +79,15 @@
   }
 
   function editIngredient(index) {
-    isEditing[index] = false;
-    console.log('ja ich will dd');
+    isEditing[index];
+  }
+
+  function handelDishRank(event) {
+    selectRank = event.target.value;
+  }
+
+  function handlePopularityChange(event) {
+    selectPopularity = event.target.value;
   }
 
 </script>
@@ -88,8 +103,32 @@
     <input name="dishName" type="text" id="dishName" bind:value={dishName} on:input={handleDishNameChange} />
   </div>
   <div>
-    <label for="dishNote">Dish Notizen:</label>
-    <textarea name="dishNote" type="text" id="dishNote" bind:value={dishNote} on:input={handleDishNoteChange} />
+    <label for="dishDescription">Rezept Beschreibung</label>
+    <textarea name="dishDescription" id="dishDescription" bind:value={dishDescription} on:input={handelDishDescriptionChange} />
+  </div>
+  <div>
+    <div>
+      <label for="dishRank">Bewertung</label>
+      <select name="dishRank" id="dishRank" on:change={handelDishRank}>
+        <option value="">--Select--</option>
+        {#each rankData as rank}
+          <option value={rank.id}>{rank.name}</option>
+        {/each}
+      </select>
+    </div>
+    <div>
+      <label for="dishPopularity">Beliebtheit</label>
+      <select name="dishPopularity" id="dishPopularity" on:change={handlePopularityChange}>
+        <option value="">--Select--</option>
+        {#each popularityData as popularity }
+          <option value={popularity.id}>{popularity.name}</option>
+        {/each}
+      </select>
+    </div>
+    <div>
+      <label for="dishNote">Dish Notizen:</label>
+      <textarea name="dishNote" id="dishNote" bind:value={dishNote} on:input={handleDishNoteChange} />
+    </div>
   </div>
   
   <div>
@@ -148,15 +187,19 @@
             <option value={unit.id}>{unit.name}</option>
           {/each}
         </select>
-        <label for="ingredient-name">Wähle die Zutat</label>
-        <input list="ingredient-name-list" id="ingredient.name" name="ingredient.name" on:change={event => handleChangeIngredient(event, index)}>
-        <datalist id="ingredient-name-list" hidden={!isEditing[index]}>
-          {#each ingredData as ingredient}
+        <!-- {#if !selectedIngredients[index]} -->
+          
+          <label for="ingredient-name">Wähle die Zutat</label>
+          <input list="ingredient-name-list" id="ingredient.name" name="ingredient.name" on:change={event => handleChangeIngredient(event, index)}>
+          <datalist id="ingredient-name-list">
+            {#each ingredData as ingredient}
             <option label={ingredient.name} value={ingredient.id}>{ingredient.name}</option>
-          {/each}
-        </datalist>
+            {/each}
+          </datalist>
+        <!-- {/if} -->
         {#if selectedIngredients[index]}
-          {selectedIngredients[index].name}
+          <!-- <input id="ingredient.name" name="ingredient.name" value={selectedIngredients[index].name}> -->
+          <p>{selectedIngredients[index].name}</p>
           <button on:click={() => editIngredient(index)} type="button">Edit</button>
         {/if}
       </div>

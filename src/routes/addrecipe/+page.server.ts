@@ -12,8 +12,10 @@ export const load = async ({ locals }) => {
   const { data: kitchenData, error: kitchenError } = await supabase.from('kitchen').select('*');
   const { data: dietData, error: dietError } = await supabase.from('diet').select('*');
   const { data: bookData, error: bookError } = await supabase.from('book').select('*');
+  const { data: rankData, error: rankError } = await supabase.from('rank').select('*');
+  const { data: popularityData, error: popularityError } = await supabase.from('popularity').select('*');
 
-  if (tableError || ingredError || kitchenError || dietError || bookError) {
+  if (tableError || ingredError || kitchenError || dietError || bookError || rankError || popularityError) {
     throw new Error('Failed to fetch data from the database.');
   }
 
@@ -22,7 +24,9 @@ export const load = async ({ locals }) => {
     ingredData,
     kitchenData,
     dietData,
-    bookData
+    bookData,
+    rankData,
+    popularityData
   };
 };
 
@@ -33,6 +37,9 @@ export const actions = {
         const data = await request.formData();
 
         const dishName = data.get('dishName');
+        const dishDescription = data.get('dishDescription');
+        const selectedRank = data.get('dishRank');
+        const selectedPopularity = data.get('dishPopularity');
         const dishNote = data.get('dishNote');
         const selectedKitchen = data.get('kitchen');
         const selectedDiet = data.get('diet');
@@ -46,6 +53,9 @@ export const actions = {
         const recipyData = [
           {
             name: dishName,
+            description: dishDescription,
+            'rank-id': selectedRank,
+            'popularity-id': selectedPopularity,
             note: dishNote,
             'kitchen-id': selectedKitchen,
             'diet-id': selectedDiet,
@@ -53,14 +63,16 @@ export const actions = {
             page: page,
           }
         ]
+
+        console.log(recipyData);
         // wartet auf die id vom rezept
        const recipyId = await addRecepy(recipyData, supabase);
 
+       console.log('imageFile', (imageFile.size > 0));
+
        setTimeout(async () => {
-          if (imageFile) {
+          if (imageFile.size > 0) {
             const path = 'public/dish/' + imageFile.name;
-            console.log('path', path);
-            console.log('Image File', imageFile);
             const { data: uploadData, error: uploadError } = await supabase.storage
               .from('recipe-book')
               .upload(path, imageFile, {
@@ -70,14 +82,10 @@ export const actions = {
             
             console.log('data', data)
             if (uploadError) {
-              console.log('upload Error', uploadError);
               console.error('Error uploading image:', uploadError.message);
             } else {
               // Aktualisieren der Rezeptdaten mit dem Bildpfad
-              console.log('recipy', recipyId);
-              console.log('key', uploadData);
               const publicPath = supabase.storage.from('recipe-book').getPublicUrl(uploadData.path);
-              console.log('public path', publicPath.data.publicUrl);
               const imagePath = publicPath.data.publicUrl;
               await supabase.from('recipe').update({ imageUrl: imagePath }).eq('id', recipyId);
             }

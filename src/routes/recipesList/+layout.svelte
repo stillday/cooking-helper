@@ -11,6 +11,7 @@
       ({ recipeData } = data);
     }
   }
+  console.log(data)
 
   function closePopup() {
     showPopup = false;
@@ -24,6 +25,10 @@
     <li>
       <a href="/recipesList/{recipe.id}" >
         {recipe.name}
+        {recipe.description}
+        {recipe.rank.name}
+        {recipe.popularity.name}
+        <img src={recipe.imageUrl} /> 
       </a>
     </li>
   {/each}
