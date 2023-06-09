@@ -19,16 +19,7 @@
 </script>
 
 <h1>Recipes List</h1>
-<div>
-  <label for="filter">Filter:</label>
-  <select id="filter" on:change={handleFilterChange}>
-    <option value="name">Name</option>
-    <option value="rank">Rank</option>
-    <option value="popularity">Popularity</option>
-    <option value="kitchen">Kitchen</option>
-    <option value="diet">Diet</option>
-  </select>
-</div>
+<div></div>
 <div class="tile-wrapper">
   <ul class="tile-wrapper-inner">
     {#each recipeData as recipe}
@@ -62,7 +53,7 @@
 
 .tile-wrapper-inner {
   display: grid;
-    grid-template-columns: repeat(5, 202px [col-start]);
+    grid-template-columns: repeat(4, 202px [col-start]);
     column-gap: 10px;
     row-gap: 15px;
 }

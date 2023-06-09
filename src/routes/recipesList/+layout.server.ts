@@ -7,6 +7,7 @@ export const load = async ({ locals }) => {
   const { data: recipeData, error: recipeError } = await supabase
     .from('recipe')
     .select(`
+      id,
       name,
       description,
       rank (

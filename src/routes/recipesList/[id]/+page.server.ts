@@ -7,6 +7,13 @@ export const load = async ({ locals, params: {id} }) => {
     .from('recipe')
     .select(`
       name,
+      description,
+      rank (
+        name
+      ),
+      popularity (
+        name
+      ),
       page,
       note,
       imageUrl,
