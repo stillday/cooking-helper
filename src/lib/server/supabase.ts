@@ -48,3 +48,28 @@ export async function addIngredients(ingedientsData, supabase) {
     };
   }
 }
+
+export async function addPlan(planData, supabase){
+  try {
+    const { data, error } = await supabase.from('plan').insert(planData);
+  
+    if (error) {
+      console.error('Failed to save recipe:', error.message);
+      return {
+        status: 500,
+        body: JSON.stringify({ message: 'Failed to save recipe' })
+      };
+    }
+  
+    console.log('Recipe saved successfully:', data);
+  
+    return data[0].id;
+
+  } catch (error) {
+    console.error('Failed to save recipe:', error);
+    return {
+      status: 500,
+      body: JSON.stringify({ message: 'Failed to save recipe' })
+    };
+  }
+}  

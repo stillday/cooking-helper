@@ -11,7 +11,6 @@
       ({ recipeData } = data);
     }
   }
-  console.log(data)
 
   function closePopup() {
     showPopup = false;

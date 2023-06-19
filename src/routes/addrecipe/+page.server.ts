@@ -68,8 +68,6 @@ export const actions = {
         // wartet auf die id vom rezept
        const recipyId = await addRecepy(recipyData, supabase);
 
-       console.log('imageFile', (imageFile.size > 0));
-
        setTimeout(async () => {
           if (imageFile.size > 0) {
             const path = 'public/dish/' + imageFile.name;

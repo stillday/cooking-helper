@@ -37,7 +37,6 @@
     const selectedIngredient = ingredData.find(ingredient => ingredient.id === selectedIngredientId);
     selectedIngredients[index] = selectedIngredient;
     !isEditing[index];
-    console.log(selectedIngredient);
   }
 
   function handleChangeQuantity(event, index) {

@@ -25,6 +25,12 @@
 			<li aria-current={$page.url.pathname === '/recipesList' ? 'page' : undefined}>
 				<a href="/recipesList">Recipe List</a>
 			</li>
+			<li aria-current={$page.url.pathname === '/plan' ? 'page' : undefined}>
+				<a href="/plan">Wochenplan</a>
+			</li>
+			<li aria-current={$page.url.pathname === '/shopping' ? 'page' : undefined}>
+				<a href="/shopping">Einkaufsliste</a>
+			</li>
 		</ul>
 		<svg viewBox="0 0 2 3" aria-hidden="true">
 			<path d="M0,0 L0,3 C0.5,3 0.5,3 1,2 L2,0 Z" />
