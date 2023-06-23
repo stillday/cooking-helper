@@ -1,6 +1,6 @@
 // ../recipesList/[id]/+page.server.ts
 
-import { addPlan } from '$lib/server/supabase.js';
+import { addPlan, addShopping } from '$lib/server/supabase.js';
 
 export const load = async ({ locals, params: {id} }) => {
   const { supabase, session } = locals;
@@ -67,5 +67,6 @@ export const actions = {
       }
     ]
     await addPlan(planData, supabase);
+    await addShopping(planData, supabase);
   }
 }

@@ -81,6 +81,7 @@ export const actions = {
   shoppingList: async ({ request, locals }) => {
     const { supabase } = locals;
     const data = await request.formData();
+    console.log('this data', data);
 
     start = data.get('startet') as string;
     end = data.get('ending') as string;
@@ -93,7 +94,7 @@ export const actions = {
     const { supabase } = locals;
     const data = await request.formData();
 
-    const ingredName = data.get('ingredient') as string;
+    const ingredName = data.getAll('ingredient');
 
     console.log('clean', data)
     console.log('ingre', ingredName)

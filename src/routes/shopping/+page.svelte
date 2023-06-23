@@ -22,24 +22,25 @@
   <button>Generieren</button>
 </form>
 
-<form action="?/cleanShoppingList" use:enhance method="POST">
-  <fieldset>
-    <legend>Einkauflste von {startDate} bis {endDate}</legend>
+<form action="?/cleanShoppingList" use:enhance method="POST" enctype="multipart/form-data">
+    <h2>Einkauflste von {startDate} bis {endDate}</h2>
     
+    <input hidden name="startTime" bind:value={startDate}>
+    <input hidden name="endTime" bind:value={endDate}>
     {#each data.ingredients as ingred}
     <div>
-      <input type="checkbox" id={ingred.name} name="ingredient">
+      <input type="checkbox" id={ingred.name} name={ingred.name}>
       <label for={ingred.name}>
         {ingred.amount}
         {ingred.unit}
         {ingred.name}
       </label>
+      <input hidden name="ingredient" value={ingred.name}>
       
     </div>
     {/each}
 
     <button>Bereinigen</button>
-  </fieldset>
 </form>
 
 <style>
