@@ -113,9 +113,9 @@ export const actions = {
         }
     
         let shoppingListUpsert = recipeData.reduce((acc, ingredient) => {
-          console.log('ingred', ingredient);
-          const id = ingredient.id;
-          const accIndex = acc.findIndex(i => i.id === id)
+          console.log('ingred', ingredient.ingredients.id);
+          const id = ingredient.ingredients.id;
+          const accIndex = acc.findIndex(i => i['ingredient-id'] === id)
           console.log(ingredient);
           if (accIndex > -1) {
             acc[accIndex].amount += ingredient.amount;
