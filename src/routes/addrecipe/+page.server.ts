@@ -128,11 +128,6 @@ export const actions = {
       console.error('Failed to add new book:', insertError);
       return;
     }
-  
-    // Setze das newBook-Feld zurück
-    newBook = '';
   }
-  
-  
 }
 

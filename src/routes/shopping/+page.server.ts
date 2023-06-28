@@ -7,51 +7,34 @@ export const load = async ({ locals }) => {
   
   if (start && end) {
     const { data: planRecipeData, error: planRecipeError } = await supabase
-      .from('plan')
-      .select(`
+    .from('shopping-list')
+    .select(`
       id,
-      recipe (
+      date,
+      ingredients (
         id,
-        name,
-        page,
-        book (
-          name
-        )
+        name
       ),
-      date
+      units (
+        id,
+        name
+      ),
+      amount,
+      checked
     `)
     .lte('date', end)
-    .gte('date', start);
-
-    const recipeIds = planRecipeData.map(entry => entry.recipe.id);
+    .gte('date', start); 
   
-    const { data: ingredientData, error: ingredientError } = await supabase
-      .from('recipe-ingredients')
-      .select(`
-        id,
-        amount,
-        ingredients (
-          name
-        ),
-        units (
-          name
-        ),
-        "recipe-id"
-      `)
-      .in('recipe-id', recipeIds);
-  
-    if (planRecipeError || ingredientError) {
-      console.log('Error fetching data', planRecipeError || ingredientError);
+    if (planRecipeError) {
+      console.log('Error fetching data', planRecipeError);
       throw new Error('Failed to fetch data from the database.');
     }
-
     
     start = ''
     end = ''
 
-    let ingredients = ingredientData.reduce((acc, ingredient) => {
+    let ingredients = planRecipeData.reduce((acc, ingredient) => {
       const id = ingredient.ingredients.name + ingredient.units.name;
-      // acc[id] = (acc[id] || 0) + ingredient.amount; 
       const accIndex = acc.findIndex(i => i.id === id)
       if (accIndex > -1) {
         acc[accIndex].amount += ingredient.amount;
@@ -81,7 +64,6 @@ export const actions = {
   shoppingList: async ({ request, locals }) => {
     const { supabase } = locals;
     const data = await request.formData();
-    console.log('this data', data);
 
     start = data.get('startet') as string;
     end = data.get('ending') as string;
@@ -98,5 +80,43 @@ export const actions = {
 
     console.log('clean', data)
     console.log('ingre', ingredName)
-  }
+  },
+
+  ingredCheck: async ({request, locals}) => {
+    const {supabase} = locals;
+    const data = await request.formData();
+    console.log('DATA', data);
+    const unitId = data.getAll('unit-id');
+    const ingredient = data.getAll('ingredient');
+    const start = data.getAll('startTime');
+    const end = data.getAll('endTime');
+    console.log('id', unitId);
+    console.log('ingre', ingredient);
+    console.log('start', start);
+    console.log('end', end);
+    
+    // try {
+    //   const { data: ingredCheckData, error: ingredCheckError} = await supabase
+    //     .from('shopping-list')
+    //     .select();
+    // }
+    const { data: ingredCheckData, error: ingredCheckError } = await supabase
+    .from('shopping-list')
+    .select(`
+      id,
+      date,
+      ingredients (
+        id,
+        name
+      ),
+      units (
+        id,
+        name
+      ),
+      amount,
+      checked
+    `)
+    .lte('date', end)
+    .gte('date', start); 
+  },
 }

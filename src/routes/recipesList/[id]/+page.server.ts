@@ -4,7 +4,6 @@ import { addPlan } from '$lib/server/supabase.js';
 
 export const load = async ({ locals, params: {id} }) => {
   const { supabase, session } = locals;
-  console.log('popup server.ts load', id)
   const { data: popUpRecipeData, error: popUpRecipeError } = await supabase
     .from('recipe')
     .select(`
@@ -68,10 +67,6 @@ export const actions = {
     ]
 
     async function addShopping(){
-      // abruf des rezepts, ingredients laden
-      // Abruf der Shopping list datenbank an datum, wo ingredients-ids
-      // erhöhen oder hinzufügen am tag
-      console.log('plan', planData[0]['recipe-id']);
       try {
         const { data: recipeData, error: recipeError } = await supabase
         .from('recipe-ingredients')
@@ -94,7 +89,7 @@ export const actions = {
           console.log('Error fetching data', recipeError);
           throw new Error('Failed to fetch data from the database.');
         }
-    
+
         const { data: shoppingListData, error: shoppingListError } = await supabase
         .from('shopping-list')
         .select(`
@@ -105,7 +100,7 @@ export const actions = {
           amount
         `)
         .eq('date', planData[0].date)
-        .in('ingredient-id', recipeData.map(ing => ing.id))
+        .in('ingredient-id', recipeData.map(ing => ing.ingredients.id))
           
         if(shoppingListError) {
           console.log('Error fetching data', shoppingListError);
@@ -113,15 +108,12 @@ export const actions = {
         }
     
         let shoppingListUpsert = recipeData.reduce((acc, ingredient) => {
-          console.log('ingred', ingredient.ingredients.id);
           const id = ingredient.ingredients.id;
-          const accIndex = acc.findIndex(i => i['ingredient-id'] === id)
-          console.log(ingredient);
+          const accIndex = acc.findIndex(i => i['ingredient-id'] === id && i['unit-id'] === ingredient.units.id);
           if (accIndex > -1) {
             acc[accIndex].amount += ingredient.amount;
           } else {
             acc.push({
-              id,
               date: planData[0].date,
               "ingredient-id": ingredient.ingredients.id,
               "unit-id": ingredient.units.id,
@@ -133,7 +125,7 @@ export const actions = {
         }, shoppingListData);
         
         const { data, error } = await supabase.from('shopping-list')
-         .insert(shoppingListUpsert);
+         .upsert(shoppingListUpsert);
   
         if (error) {
           console.error('Failed to save recipe:', error.message);
