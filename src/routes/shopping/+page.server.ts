@@ -86,10 +86,10 @@ export const actions = {
     const {supabase} = locals;
     const data = await request.formData();
     console.log('DATA', data);
-    const unitId = data.getAll('unit-id');
-    const ingredient = data.getAll('ingredient');
-    const start = data.getAll('startTime');
-    const end = data.getAll('endTime');
+    const unitId = data.get('unit-id');
+    const ingredient = data.get('ingredient');
+    const start = data.get('startTime');
+    const end = data.get('endTime');
     console.log('id', unitId);
     console.log('ingre', ingredient);
     console.log('start', start);
@@ -117,6 +117,59 @@ export const actions = {
       checked
     `)
     .lte('date', end)
-    .gte('date', start); 
+    .gte('date', start)
+    .eq('ingredients.name', ingredient)
+    .eq('units.name', unitId);
+
+    if (ingredCheckError) {
+      console.log('Error', ingredCheckError)
+      throw new Error('Failed to fetch data from the database.');
+    }
+
+    const uncheckedEntries = ingredCheckData.filter(
+      entry => !entry.checked && entry.date >= start && entry.date <= end
+    );
+    
+    const uncheckedIds = uncheckedEntries.map(entry => entry.id);
+    console.log(uncheckedIds);
+
+    if (uncheckedIds.length > 0) {
+      const { data: updateData, error: updateError } = await supabase
+        .from('shopping-list')
+        .update({ checked: true })
+        .in('id', uncheckedIds)
+        .eq('ingredients.name', ingredient)
+        .eq('units.name', unitId)
+        .gte('date', start)
+        .lte('date', end)
+        .select(`
+          id,
+          date,
+          ingredients (
+            id,
+            name
+          ),
+          units (
+            id,
+            name
+          ),
+          amount,
+          checked
+        `);
+    
+      if (updateError) {
+        console.error('Failed to update checked status:', updateError.message);
+        throw new Error('Failed to update checked status in the database.');
+      }
+    
+      console.log('Checked status updated successfully:', updateData);
+    } else {
+      console.log('No entries to update.');
+    }
+    console.log('check it', ingredCheckData)
+  
+    return {
+      ingredCheckData
+    };
   },
 }
