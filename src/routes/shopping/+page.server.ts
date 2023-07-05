@@ -119,29 +119,42 @@ export const actions = {
     .lte('date', end)
     .gte('date', start)
     .eq('ingredients.name', ingredient)
-    .eq('units.name', unitId);
+    .eq('units.name', unitId)
+    .not('ingredients', 'is', null)
+    .not('units', 'is', null);
+
 
     if (ingredCheckError) {
       console.log('Error', ingredCheckError)
       throw new Error('Failed to fetch data from the database.');
     }
 
-    const uncheckedEntries = ingredCheckData.filter(
-      entry => !entry.checked && entry.date >= start && entry.date <= end
-    );
+    console.log('ingred', ingredCheckData);
+    console.log('reg', ingredient, unitId);
+
     
-    const uncheckedIds = uncheckedEntries.map(entry => entry.id);
-    console.log(uncheckedIds);
+    const uncheckedIds = ingredCheckData.map(entry => entry.id);
+    
+    let updateChecked = [];
+
+    uncheckedIds.forEach((value) => {
+      console.log('try', value)
+      updateChecked.push(
+        {
+          id: value,
+          checked: true
+        }
+      )
+      console.log(updateChecked);
+    });
 
     if (uncheckedIds.length > 0) {
       const { data: updateData, error: updateError } = await supabase
         .from('shopping-list')
-        .update({ checked: true })
+        .upsert(updateChecked)
         .in('id', uncheckedIds)
         .eq('ingredients.name', ingredient)
         .eq('units.name', unitId)
-        .gte('date', start)
-        .lte('date', end)
         .select(`
           id,
           date,
@@ -166,7 +179,14 @@ export const actions = {
     } else {
       console.log('No entries to update.');
     }
-    console.log('check it', ingredCheckData)
+    // const updateChecked = [
+    //   {
+    //     id: uncheckedIds,
+    //     checked: true
+    //   }
+    // ]
+
+    // console.log('check it', ingredCheckData)
   
     return {
       ingredCheckData
