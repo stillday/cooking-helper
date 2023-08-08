@@ -85,15 +85,15 @@ export const actions = {
   ingredCheck: async ({request, locals}) => {
     const {supabase} = locals;
     const data = await request.formData();
-    console.log('DATA', data);
+    // console.log('DATA', data);
     const unitId = data.get('unit-id');
     const ingredient = data.get('ingredient');
     const start = data.get('startTime');
     const end = data.get('endTime');
-    console.log('id', unitId);
-    console.log('ingre', ingredient);
-    console.log('start', start);
-    console.log('end', end);
+    // console.log('id', unitId);
+    // console.log('ingre', ingredient);
+    // console.log('start', start);
+    // console.log('end', end);
     
     // try {
     //   const { data: ingredCheckData, error: ingredCheckError} = await supabase
@@ -116,37 +116,39 @@ export const actions = {
       amount,
       checked
     `)
-    .lte('date', end)
-    .gte('date', start)
-    .eq('ingredients.name', ingredient)
-    .eq('units.name', unitId)
-    .not('ingredients', 'is', null)
-    .not('units', 'is', null);
-
+    // .lte('date', end)
+    // .gte('date', start)
+    // .eq('ingredients.name', ingredient)
+    // .eq('units.name', unitId)
+    // .not('ingredients', 'is', null)
+    // .not('units', 'is', null);
+      
 
     if (ingredCheckError) {
       console.log('Error', ingredCheckError)
       throw new Error('Failed to fetch data from the database.');
     }
 
-    console.log('ingred', ingredCheckData);
-    console.log('reg', ingredient, unitId);
+    // console.log('ingred', ingredCheckData);
+    // console.log('reg', ingredient, unitId);
 
     
     const uncheckedIds = ingredCheckData.map(entry => entry.id);
+
+    console.log('id', uncheckedIds);
     
     let updateChecked = [];
 
-    uncheckedIds.forEach((value) => {
-      console.log('try', value)
-      updateChecked.push(
-        {
-          id: value,
-          checked: true
-        }
-      )
-      console.log(updateChecked);
-    });
+    // uncheckedIds.forEach((value) => {
+    //   console.log('try', value)
+    //   updateChecked.push(
+    //     {
+    //       id: value,
+    //       checked: true
+    //     }
+    //   )
+    //   console.log(updateChecked);
+    // });
 
     if (uncheckedIds.length > 0) {
       const { data: updateData, error: updateError } = await supabase
