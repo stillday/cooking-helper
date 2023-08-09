@@ -44,6 +44,7 @@ export const load = async ({ locals }) => {
           name: ingredient.ingredients.name,
           unit: ingredient.units.name,
           amount: ingredient.amount,
+          checked: ingredient.checked,
         })
       }
       return acc
@@ -59,6 +60,55 @@ export const load = async ({ locals }) => {
     ingredients: [],
   };
 };
+
+async function reloadShoppingList(supabase) {
+  const { data: planRecipeData, error: planRecipeError } = await supabase
+    .from('shopping-list')
+    .select(`
+    id,
+    date,
+    ingredients (
+      id,
+      name
+    ),
+    units (
+      id,
+      name
+    ),
+    amount,
+    checked
+  `)
+    .lte('date', end)
+    .gte('date', start);
+
+  if (planRecipeError) {
+    console.log('Error fetching data', planRecipeError);
+    throw new Error('Failed to fetch data from the database.');
+  }
+
+  const ingredients = planRecipeData.reduce((acc, ingredient) => {
+    const id = ingredient.ingredients.name + ingredient.units.name;
+    const accIndex = acc.findIndex(i => i.id === id)
+    if (accIndex > -1) {
+      acc[accIndex].amount += ingredient.amount;
+    } else {
+      acc.push({
+        id,
+        name: ingredient.ingredients.name,
+        unit: ingredient.units.name,
+        amount: ingredient.amount,
+        checked: ingredient.checked,
+      })
+    }
+    return acc
+  }, [] as { id: string, name: string, unit: string, amount: number, checked: boolean }[]);
+
+  return {
+    planRecipes: planRecipeData,
+    ingredients,
+  };
+}
+
 
 export const actions = {
   shoppingList: async ({ request, locals }) => {
@@ -90,16 +140,7 @@ export const actions = {
     const ingredient = data.get('ingredient');
     const start = data.get('startTime');
     const end = data.get('endTime');
-    // console.log('id', unitId);
-    // console.log('ingre', ingredient);
-    // console.log('start', start);
-    // console.log('end', end);
-    
-    // try {
-    //   const { data: ingredCheckData, error: ingredCheckError} = await supabase
-    //     .from('shopping-list')
-    //     .select();
-    // }
+   
     const { data: ingredCheckData, error: ingredCheckError } = await supabase
     .from('shopping-list')
     .select(`
@@ -116,39 +157,29 @@ export const actions = {
       amount,
       checked
     `)
-    // .lte('date', end)
-    // .gte('date', start)
-    // .eq('ingredients.name', ingredient)
-    // .eq('units.name', unitId)
-    // .not('ingredients', 'is', null)
-    // .not('units', 'is', null);
-      
 
     if (ingredCheckError) {
       console.log('Error', ingredCheckError)
       throw new Error('Failed to fetch data from the database.');
     }
 
-    // console.log('ingred', ingredCheckData);
-    // console.log('reg', ingredient, unitId);
 
     
     const uncheckedIds = ingredCheckData.map(entry => entry.id);
 
-    console.log('id', uncheckedIds);
     
     let updateChecked = [];
 
-    // uncheckedIds.forEach((value) => {
-    //   console.log('try', value)
-    //   updateChecked.push(
-    //     {
-    //       id: value,
-    //       checked: true
-    //     }
-    //   )
-    //   console.log(updateChecked);
-    // });
+    uncheckedIds.forEach((value) => {
+      const matchingEntry = ingredCheckData.find(entry => entry.id === value && entry.ingredients.name === ingredient && entry.units.name === unitId);
+    
+      if (matchingEntry) {
+        updateChecked.push({
+          id: value,
+          checked: true
+        });
+      }
+    });
 
     if (uncheckedIds.length > 0) {
       const { data: updateData, error: updateError } = await supabase
@@ -178,18 +209,17 @@ export const actions = {
       }
     
       console.log('Checked status updated successfully:', updateData);
+
+      // Lade die Einkaufsliste neu
+      const updatedData = await reloadShoppingList(supabase);
+
+      return {
+        ingredCheckData: updatedData,  // Oder wie auch immer die aktualisierten Daten heißen
+      };
     } else {
       console.log('No entries to update.');
     }
-    // const updateChecked = [
-    //   {
-    //     id: uncheckedIds,
-    //     checked: true
-    //   }
-    // ]
 
-    // console.log('check it', ingredCheckData)
-  
     return {
       ingredCheckData
     };

@@ -3,6 +3,7 @@
 
   export let data;
 
+  console.log('this data', data);
   let startDate;
   let endDate;
 
@@ -24,7 +25,7 @@
 
 {#each data.ingredients as ingred}
 <form action="?/ingredCheck" use:enhance method="POST">
-  <div>
+  <div class:checked={ingred.checked === true}>
       
         {ingred.amount}
         {ingred.unit}
@@ -33,7 +34,7 @@
       <input type="hidden" name="endTime" bind:value={endDate} />
       <input type="hidden" name="unit-id" value={ingred.unit} />
       <input type="hidden" name="ingredient" value={ingred.name} />
-      <button>check</button>
+      <button disabled={ingred.checked === true}>check</button>
     </div>
 </form>  
 {/each}
@@ -50,4 +51,7 @@
 </form>
 
 <style>
+  .checked {
+    text-decoration: line-through;
+  }
 </style>
