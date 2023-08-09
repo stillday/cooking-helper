@@ -61,8 +61,11 @@ export const load = async ({ locals }) => {
   };
 };
 
-async function reloadShoppingList(supabase) {
-  const { data: planRecipeData, error: planRecipeError } = await supabase
+async function reloadShoppingList(supabase, start, end) {
+  console.log('load data')
+  console.log('start date', start);
+  console.log('end date', end);
+  const { data: reloadShoppingData, error: reloadShoppingError } = await supabase
     .from('shopping-list')
     .select(`
     id,
@@ -81,12 +84,12 @@ async function reloadShoppingList(supabase) {
     .lte('date', end)
     .gte('date', start);
 
-  if (planRecipeError) {
-    console.log('Error fetching data', planRecipeError);
+  if (reloadShoppingError) {
+    console.log('Error fetching data', reloadShoppingError);
     throw new Error('Failed to fetch data from the database.');
   }
 
-  const ingredients = planRecipeData.reduce((acc, ingredient) => {
+  const ingredients = reloadShoppingData.reduce((acc, ingredient) => {
     const id = ingredient.ingredients.name + ingredient.units.name;
     const accIndex = acc.findIndex(i => i.id === id)
     if (accIndex > -1) {
@@ -103,9 +106,11 @@ async function reloadShoppingList(supabase) {
     return acc
   }, [] as { id: string, name: string, unit: string, amount: number, checked: boolean }[]);
 
+  console.log('end from reload', ingredients, reloadShoppingData)
   return {
-    planRecipes: planRecipeData,
+    reloadShoppings: reloadShoppingData,
     ingredients,
+    success:true
   };
 }
 
@@ -122,20 +127,15 @@ export const actions = {
   },
 
   cleanShoppingList: async ({request, locals}) => {
-    console.log('request', request);
     const { supabase } = locals;
     const data = await request.formData();
 
     const ingredName = data.getAll('ingredient');
-
-    console.log('clean', data)
-    console.log('ingre', ingredName)
   },
 
   ingredCheck: async ({request, locals}) => {
     const {supabase} = locals;
     const data = await request.formData();
-    // console.log('DATA', data);
     const unitId = data.get('unit-id');
     const ingredient = data.get('ingredient');
     const start = data.get('startTime');
@@ -167,7 +167,6 @@ export const actions = {
     
     const uncheckedIds = ingredCheckData.map(entry => entry.id);
 
-    
     let updateChecked = [];
 
     uncheckedIds.forEach((value) => {
@@ -210,18 +209,15 @@ export const actions = {
     
       console.log('Checked status updated successfully:', updateData);
 
-      // Lade die Einkaufsliste neu
-      const updatedData = await reloadShoppingList(supabase);
-
-      return {
-        ingredCheckData: updatedData,  // Oder wie auch immer die aktualisierten Daten heißen
-      };
+      
     } else {
       console.log('No entries to update.');
     }
-
+    
+    // Lade die Einkaufsliste neu
+    const updatedData = await reloadShoppingList(supabase, start, end);
     return {
-      ingredCheckData
+      ingredCheckData: updatedData,
     };
   },
 }

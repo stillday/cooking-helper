@@ -3,15 +3,10 @@
 
   export let data;
 
-  console.log('this data', data);
   let startDate;
   let endDate;
 
-  // $: {
-  //   if (data && startDate && endDate) {
-  //     einkaufsliste = generateEinkaufsliste(data.planRecipes, startDate, endDate, data.ingredients);
-  //   }
-  // }
+  console.log('data', data.ingredients);
 </script>
 
 <h1>Einkaufsliste Abfragen</h1>
