@@ -22,5 +22,12 @@
 	"type": "module",
 	"dependencies": {
 		"@supabase/auth-helpers-sveltekit": "^0.9.4"
-	}
+	},
+	"volta": {
+		"node": "18.17.1"
+	},
+    "packageManager": "pnpm@8.6.11",
+    "engines": {
+        "pnpm": "^8.0.0"
+    }
 }
