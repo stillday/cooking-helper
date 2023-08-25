@@ -107,6 +107,7 @@ async function reloadShoppingList(supabase, start, end) {
   }, [] as { id: string, name: string, unit: string, amount: number, checked: boolean }[]);
 
   console.log('end from reload', ingredients, reloadShoppingData)
+  let data = reloadShoppingData;
   return {
     reloadShoppings: reloadShoppingData,
     ingredients,
@@ -135,7 +136,7 @@ export const actions = {
 
   ingredCheck: async ({request, locals}) => {
     const {supabase} = locals;
-    const data = await request.formData();
+    let data = await request.formData();
     const unitId = data.get('unit-id');
     const ingredient = data.get('ingredient');
     const start = data.get('startTime');
@@ -215,9 +216,10 @@ export const actions = {
     }
     
     // Lade die Einkaufsliste neu
-    const updatedData = await reloadShoppingList(supabase, start, end);
+    data = await reloadShoppingList(supabase, start, end);
+    // data = {...data, ...updatedData};
     return {
-      ingredCheckData: updatedData,
+      ingredCheckData: data,
     };
   },
 }
