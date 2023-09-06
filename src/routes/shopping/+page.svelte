@@ -5,8 +5,6 @@
 
   let startDate;
   let endDate;
-
-  console.log('data', data.ingredients);
 </script>
 
 <h1>Einkaufsliste Abfragen</h1>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { enhance } from "$app/forms";
   export let data;
 
   let planRecipeData;
@@ -20,20 +21,26 @@
       <th>Seite</th>
     </tr>
     {#each planRecipeData as plan }
-    <tr>
-      <td>
-        {plan.date}
-      </td>
-      <td>
-        {plan.recipe.name}
-      </td>
-      <td>
-        {plan.recipe.book.name}
-      </td>
-      <td>
-        {plan.recipe.page}
-      </td>
-    </tr>
+      <tr>
+        <td>
+          {plan.date}
+        </td>
+        <td>
+          {plan.recipe.name}
+        </td>
+        <td>
+          {plan.recipe.book.name}
+        </td>
+        <td>
+          {plan.recipe.page}
+        </td>
+        <td>
+          <form action="?/cocked" use:enhance method="POST">
+            <input type="hidden" name="planId" value={plan.id}>
+            <button>Gekocht</button>
+          </form>
+        </td>
+      </tr>
     {/each}
   </table>
 </div>

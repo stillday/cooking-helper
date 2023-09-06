@@ -1,3 +1,4 @@
+let planId;
 
 export const load =async ({locals}) => {
   const { supabase, session } = locals;
@@ -25,3 +26,27 @@ export const load =async ({locals}) => {
       planRecipeData
     };
 };
+
+export const actions = {
+  cocked: async ({request, locals}) => {
+    const { supabase } = locals;
+    const data = await request.formData();
+    planId = data.get('planId');
+
+    console.log(planId);
+    if (planId) {
+      const { data: deletePlan, error: deletePlanError } = await supabase
+            .from('plan')
+            .delete()
+            .eq('id', planId);
+  
+          if (deletePlanError) {
+            console.log('Error deleting data', deletePlanError);
+            throw new Error('Failed to delete data from the database.');
+          }
+  
+          console.log('Deleted items:', deletePlan);
+    }
+    
+    }
+}
