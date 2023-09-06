@@ -62,9 +62,6 @@ export const load = async ({ locals }) => {
 };
 
 async function reloadShoppingList(supabase, start, end) {
-  console.log('load data')
-  console.log('start date', start);
-  console.log('end date', end);
   const { data: reloadShoppingData, error: reloadShoppingError } = await supabase
     .from('shopping-list')
     .select(`
@@ -106,7 +103,6 @@ async function reloadShoppingList(supabase, start, end) {
     return acc
   }, [] as { id: string, name: string, unit: string, amount: number, checked: boolean }[]);
 
-  console.log('end from reload', ingredients, reloadShoppingData)
   let data = reloadShoppingData;
   return {
     reloadShoppings: reloadShoppingData,
@@ -130,8 +126,43 @@ export const actions = {
   cleanShoppingList: async ({request, locals}) => {
     const { supabase } = locals;
     const data = await request.formData();
+    start = data.get('startTime');
+    end = data.get('endTime');
 
-    const ingredName = data.getAll('ingredient');
+    if (start && end) {
+      // Zuerst holen Sie sich die überprüften Elemente aus der Datenbank, die im angegebenen Zeitraum liegen
+      const { data: checkedItemsData, error: checkedItemsError } = await supabase
+        .from('shopping-list')
+        .select('id')
+        .eq('checked', true)
+        .lte('date', end)
+        .gte('date', start);
+  
+      if (checkedItemsError) {
+        console.log('Error fetching checked items data', checkedItemsError);
+        throw new Error('Failed to fetch checked items data from the database.');
+      }
+
+      console.log('check', checkedItemsData);
+      
+          // Extrahieren Sie die IDs der überprüften Elemente
+      const checkedItemIds = checkedItemsData.map(item => item.id);
+
+      // Jetzt können Sie die überprüften Elemente aus der Datenbank löschen
+      if (checkedItemIds.length > 0) {
+        const { data: deleteData, error: deleteDataError } = await supabase
+          .from('shopping-list')
+          .delete()
+          .in('id', checkedItemIds);
+
+        if (deleteDataError) {
+          console.log('Error deleting data', deleteDataError);
+          throw new Error('Failed to delete data from the database.');
+        }
+
+        console.log('Deleted items:', deleteData);
+      }
+    }
   },
 
   ingredCheck: async ({request, locals}) => {
@@ -139,8 +170,8 @@ export const actions = {
     let data = await request.formData();
     const unitId = data.get('unit-id');
     const ingredient = data.get('ingredient');
-    const start = data.get('startTime');
-    const end = data.get('endTime');
+    start = data.get('startTime');
+    end = data.get('endTime');
    
     const { data: ingredCheckData, error: ingredCheckError } = await supabase
     .from('shopping-list')

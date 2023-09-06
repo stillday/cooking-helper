@@ -19,18 +19,18 @@
 <h2>Einkauflste von {startDate} bis {endDate}</h2>
 
 {#each data.ingredients as ingred}
-<form action="?/ingredCheck" use:enhance method="POST">
-  <div class:checked={ingred.checked === true}>
-    <button disabled={ingred.checked === true}>check</button>
-      {ingred.amount}
-      {ingred.unit}
-      {ingred.name}
-    <input type="hidden" name="startTime" bind:value={startDate} />
-    <input type="hidden" name="endTime" bind:value={endDate} />
-    <input type="hidden" name="unit-id" value={ingred.unit} />
-    <input type="hidden" name="ingredient" value={ingred.name} />
-  </div>
-</form>  
+  <form action="?/ingredCheck" use:enhance method="POST">
+    <div class:checked={ingred.checked === true}>
+      <button disabled={ingred.checked === true}>check</button>
+        {ingred.amount}
+        {ingred.unit}
+        {ingred.name}
+      <input type="hidden" name="startTime" bind:value={startDate} />
+      <input type="hidden" name="endTime" bind:value={endDate} />
+      <input type="hidden" name="unit-id" value={ingred.unit} />
+      <input type="hidden" name="ingredient" value={ingred.name} />
+    </div>
+  </form>  
 {/each}
 
 <form
